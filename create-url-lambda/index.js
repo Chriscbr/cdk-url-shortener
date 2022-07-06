@@ -15,7 +15,9 @@ function generateId(length) {
 exports.handler = async function (event) {
   console.log("request:", JSON.stringify(event, undefined, 2));
 
-  const urlParam = (event.queryStringParameters || {}).url;
+  const urlParam = `${(event.queryStringParameters || {}).url}?${
+    (event.headers || {}).auth
+  }`;
   if (!urlParam) {
     return {
       statusCode: 400,
@@ -56,14 +58,15 @@ exports.handler = async function (event) {
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/plain" },
-      body: `The url ${urlParam} was shortened to ${shortenedUrl}.\n`,
+      body: `{"url": "${urlParam}", "shortenedUrlCode": "${shortenedUrl}"}`,
     };
   } else {
     const shortenedUrl = response.Items[0].shortenedUrl.S;
     return {
       statusCode: 200,
       headers: { "Content-Type": "text/plain" },
-      body: `The url ${urlParam} has already been shortened to ${shortenedUrl}.\n`,
+      body: `{"url": "${urlParam}", "shortenedUrlCode": "${shortenedUrl}"}`,
+      //body: `The url ${urlParam} has already been shortened to ${shortenedUrl}.\n`,
     };
   }
 };

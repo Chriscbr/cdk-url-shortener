@@ -3,7 +3,7 @@ const { DynamoDB } = require("aws-sdk");
 exports.handler = async function (event) {
   console.log("request:", JSON.stringify(event, undefined, 2));
 
-  const shortenedUrl = (event.pathParameters || {}).shortenedUrl;
+  const shortenedUrl = (event.queryStringParameters || {}).shortenedUrl;
   if (!shortenedUrl) {
     return {
       statusCode: 400,
@@ -38,11 +38,19 @@ exports.handler = async function (event) {
     };
   } else {
     const websiteUrl = response.Items[0].websiteUrl.S;
+    console.log("Website URL no encoding", websiteUrl);
+    splitURL = websiteUrl.split("?");
+    const encoded_website_url = `${encodeURI(splitURL[0])
+      .replace("&", "%26")
+      .replace("(", "%28")
+      .replace(")", "%29")
+      .replace(/,/g, "%2C")}?${splitURL[1]}`;
+    console.log("Encoded website url", encoded_website_url);
     return {
       statusCode: 301,
       headers: {
-        "Content-Type": "text/plain",
-        Location: websiteUrl,
+        "Content-Type": "text/xml",
+        Location: encoded_website_url,
       },
     };
   }

@@ -12,3 +12,4 @@ cdk.out
 # Parcel build directories
 .cache
 .build
+*.vim
